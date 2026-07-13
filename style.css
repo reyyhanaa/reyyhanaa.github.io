@@ -262,6 +262,13 @@ strong { color: var(--text); font-weight: 600; }
 .dash__preview { position: relative; height: 150px; display: flex; align-items: flex-end; justify-content: center; padding: 18px; overflow: hidden; }
 .dash__preview--sales { background: linear-gradient(135deg, #0f766e, #0e7490); }
 .dash__preview--xgb { background: linear-gradient(135deg, #6d28d9, #2563eb); color: #c4b5fd; }
+.dash__preview--looker { background: linear-gradient(135deg, #4285F4, #34A853); }
+.dash__gbars { display: flex; align-items: flex-end; gap: 12px; height: 90px; }
+.dash__gbars i { width: 20px; border-radius: 5px 5px 0 0; animation: grow 1.4s ease infinite alternate; }
+.dash__gbars i:nth-child(1) { height: 55%; background: #FBBC05; }
+.dash__gbars i:nth-child(2) { height: 85%; background: #EA4335; animation-delay: .15s; }
+.dash__gbars i:nth-child(3) { height: 40%; background: #fff; animation-delay: .3s; }
+.dash__gbars i:nth-child(4) { height: 70%; background: #FBBC05; animation-delay: .45s; }
 .dash__badge { position: absolute; top: 12px; left: 12px; font-size: .68rem; font-weight: 700; letter-spacing: 1px; background: rgba(0,0,0,.35); color: #fff; padding: 4px 10px; border-radius: 100px; }
 .dash__bars { display: flex; align-items: flex-end; gap: 10px; height: 90px; width: 100%; justify-content: center; }
 .dash__bars i { width: 22px; background: rgba(255,255,255,.85); border-radius: 5px 5px 0 0; animation: grow 1.4s ease infinite alternate; }
