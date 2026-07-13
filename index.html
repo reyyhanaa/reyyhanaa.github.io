@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reyhana Nuri Syahfa — Data Analyst</title>
+  <meta name="description" content="Portfolio Reyhana Nuri Syahfa — Data Analyst & Data Science enthusiast. Machine learning, EDA, BigQuery, dan data storytelling." />
+  <meta name="author" content="Reyhana Nuri Syahfa" />
+
+  <!-- Open Graph (biar preview link bagus saat di-share) -->
+  <meta property="og:title" content="Reyhana Nuri Syahfa — Data Analyst" />
+  <meta property="og:description" content="Portfolio Data Analyst & Data Science: ML forecasting, EDA, BigQuery, data storytelling." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>" />
+</head>
+<body>
+  <!-- ===== Navbar ===== -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="#home" class="nav__logo">R<span>.</span></a>
+      <nav class="nav__links" id="navLinks">
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema">🌙</button>
+        <button class="nav__burger" id="burger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero" id="home">
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <p class="hero__eyebrow">👋 Halo, saya</p>
+        <h1 class="hero__name">Reyhana Nuri Syahfa</h1>
+        <h2 class="hero__role">
+          <span class="typed" id="typed"></span><span class="cursor">|</span>
+        </h2>
+        <p class="hero__desc">
+          Saya mengubah data mentah menjadi <strong>insight yang bisa diambil keputusan</strong>.
+          Fokus pada machine learning, exploratory data analysis, dan data storytelling
+          dengan Python, SQL, dan BigQuery.
+        </p>
+        <div class="hero__cta">
+          <a href="#projects" class="btn btn--primary">Lihat Projects</a>
+          <a href="https://github.com/reyyhanaa" target="_blank" rel="noopener" class="btn btn--ghost">GitHub ↗</a>
+        </div>
+        <div class="hero__stats">
+          <div class="stat"><span class="stat__num" data-count="4">0</span><span class="stat__label">Projects</span></div>
+          <div class="stat"><span class="stat__num" data-count="6">0</span><span class="stat__label">Tools</span></div>
+          <div class="stat"><span class="stat__num" data-count="100" data-suffix="%">0</span><span class="stat__label">Curiosity</span></div>
+        </div>
+      </div>
+      <div class="hero__visual">
+        <div class="orb"></div>
+        <div class="card-3d">
+          <div class="card-3d__dot"></div>
+          <pre class="code"><span class="c-key">import</span> pandas <span class="c-key">as</span> pd
+<span class="c-key">from</span> sklearn <span class="c-key">import</span> model
+
+df = pd.read_csv(<span class="c-str">"data.csv"</span>)
+insight = model.fit(df)
+
+<span class="c-com"># turning data into decisions</span>
+print(<span class="c-str">"📈 insight ready"</span>)</pre>
+        </div>
+      </div>
+    </div>
+    <a href="#about" class="scroll-hint" aria-label="Scroll">↓</a>
+  </section>
+
+  <!-- ===== About ===== -->
+  <section class="section" id="about">
+    <div class="container">
+      <p class="section__tag">01 — About</p>
+      <h2 class="section__title">Tentang Saya</h2>
+      <div class="about">
+        <div class="about__text">
+          <p>
+            Saya seorang <strong>Data Analyst</strong> yang antusias dengan segala hal berbau data —
+            dari membersihkan dataset yang berantakan sampai membangun model prediktif.
+          </p>
+          <p>
+            Pengalaman saya mencakup <strong>forecasting dengan XGBoost</strong>, exploratory data analysis,
+            analisis data penjualan menggunakan <strong>Google BigQuery</strong> dan visualisasi lewat
+            <strong>Looker Studio</strong>, serta analisis perilaku pengguna dari data transaksi.
+          </p>
+          <p>
+            Saya percaya data yang baik bercerita — dan tugas saya adalah menerjemahkan cerita itu
+            menjadi keputusan yang berdampak.
+          </p>
+        </div>
+        <ul class="about__facts">
+          <li><span>🎯</span> Fokus: Data Analysis & Data Science</li>
+          <li><span>🧰</span> Bahasa: Python, SQL</li>
+          <li><span>☁️</span> Cloud: Google BigQuery, Looker Studio</li>
+          <li><span>📚</span> Selalu belajar hal baru</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Skills ===== -->
+  <section class="section section--alt" id="skills">
+    <div class="container">
+      <p class="section__tag">02 — Skills</p>
+      <h2 class="section__title">Tools & Teknologi</h2>
+      <div class="skills" id="skillsGrid">
+        <!-- diisi lewat script.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Projects ===== -->
+  <section class="section" id="projects">
+    <div class="container">
+      <p class="section__tag">03 — Projects</p>
+      <h2 class="section__title">Portfolio Projects</h2>
+      <p class="section__lead">Beberapa project data yang pernah saya kerjakan. Klik untuk lihat detail di GitHub.</p>
+      <div class="projects" id="projectsGrid">
+        <!-- diisi lewat script.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Contact ===== -->
+  <section class="section section--alt" id="contact">
+    <div class="container">
+      <p class="section__tag">04 — Contact</p>
+      <h2 class="section__title">Mari Terhubung</h2>
+      <p class="section__lead">Tertarik berkolaborasi atau punya pertanyaan? Jangan ragu untuk menghubungi saya.</p>
+      <div class="contact">
+        <a class="contact__card" href="https://github.com/reyyhanaa" target="_blank" rel="noopener">
+          <span class="contact__icon">💻</span>
+          <span class="contact__label">GitHub</span>
+          <span class="contact__value">@reyyhanaa</span>
+        </a>
+        <a class="contact__card" href="mailto:your-email@example.com">
+          <span class="contact__icon">✉️</span>
+          <span class="contact__label">Email</span>
+          <span class="contact__value">Kirim pesan</span>
+        </a>
+        <a class="contact__card" href="https://linkedin.com/in/your-username" target="_blank" rel="noopener">
+          <span class="contact__icon">🔗</span>
+          <span class="contact__label">LinkedIn</span>
+          <span class="contact__value">Connect</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p>© <span id="year"></span> Reyhana Nuri Syahfa. Dibuat dengan ❤️ & HTML/CSS/JS.</p>
+      <a href="#home" class="footer__top">Kembali ke atas ↑</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
