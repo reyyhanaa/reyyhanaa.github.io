@@ -150,7 +150,7 @@ const io = new IntersectionObserver(
   },
   { threshold: 0.12 }
 );
-document.querySelectorAll(".section__title, .section__tag, .section__lead, .about__text, .about__facts, .skill, .project, .contact__card").forEach((el) => {
+document.querySelectorAll(".section__title, .section__tag, .section__lead, .about__text, .about__facts, .skill, .project, .contact__card, .tl-item, .cert, .dash__card").forEach((el) => {
   el.classList.add("reveal");
   io.observe(el);
 });

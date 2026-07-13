@@ -25,8 +25,10 @@
       <a href="#home" class="nav__logo">R<span>.</span></a>
       <nav class="nav__links" id="navLinks">
         <a href="#about">About</a>
+        <a href="#experience">Experience</a>
         <a href="#skills">Skills</a>
         <a href="#projects">Projects</a>
+        <a href="#dashboards">Dashboards</a>
         <a href="#contact">Contact</a>
       </nav>
       <div class="nav__actions">
@@ -42,6 +44,10 @@
   <section class="hero" id="home">
     <div class="container hero__inner">
       <div class="hero__text">
+        <!-- Avatar: ganti gambar di dalam .avatar dengan <img src="profile.jpg"> untuk foto asli -->
+        <div class="avatar" id="avatar" title="Reyhana Nuri Syahfa">
+          <span class="avatar__initials">RN</span>
+        </div>
         <p class="hero__eyebrow">👋 Halo, saya</p>
         <h1 class="hero__name">Reyhana Nuri Syahfa</h1>
         <h2 class="hero__role">
@@ -111,10 +117,73 @@ print(<span class="c-str">"📈 insight ready"</span>)</pre>
     </div>
   </section>
 
-  <!-- ===== Skills ===== -->
-  <section class="section section--alt" id="skills">
+  <!-- ===== Experience & Certificates ===== -->
+  <section class="section section--alt" id="experience">
     <div class="container">
-      <p class="section__tag">02 — Skills</p>
+      <p class="section__tag">02 — Experience</p>
+      <h2 class="section__title">Pengalaman & Sertifikat</h2>
+      <p class="section__lead">Perjalanan belajar dan berkarya di bidang data. (Silakan koreksi tanggal/detail sesuai punyamu.)</p>
+
+      <div class="exp">
+        <!-- Timeline pengalaman -->
+        <div class="timeline">
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <span class="tl-date">2024</span>
+            <h3 class="tl-title">Big Data Analyst — Project Based Internship</h3>
+            <p class="tl-org">Rakamin Academy × Kimia Farma</p>
+            <p class="tl-desc">Menganalisis data penjualan obat menggunakan Google BigQuery dan membangun dashboard interaktif di Google Looker Studio untuk memantau performa penjualan.</p>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <span class="tl-date">2024</span>
+            <h3 class="tl-title">Data Science Bootcamp</h3>
+            <p class="tl-org">Dibimbing.id</p>
+            <p class="tl-desc">Belajar end-to-end data science: exploratory data analysis, data cleaning (handling duplikat & missing values), hingga machine learning dan forecasting.</p>
+          </div>
+          <div class="tl-item reveal">
+            <div class="tl-dot"></div>
+            <span class="tl-date">2023 — Sekarang</span>
+            <h3 class="tl-title">Data Analyst Enthusiast</h3>
+            <p class="tl-org">Independent Projects</p>
+            <p class="tl-desc">Mengerjakan berbagai project analisis data: forecasting penyakit rawat inap dengan XGBoost, analisis perilaku pengguna dari data transaksi, dan dashboard operasional.</p>
+          </div>
+        </div>
+
+        <!-- Kartu sertifikat -->
+        <div class="certs">
+          <h3 class="certs__heading">🏆 Sertifikat</h3>
+          <a class="cert reveal" href="#" target="_blank" rel="noopener">
+            <span class="cert__icon">📜</span>
+            <div>
+              <span class="cert__name">Big Data Analyst</span>
+              <span class="cert__issuer">Rakamin × Kimia Farma · 2024</span>
+            </div>
+          </a>
+          <a class="cert reveal" href="#" target="_blank" rel="noopener">
+            <span class="cert__icon">📜</span>
+            <div>
+              <span class="cert__name">Data Science Bootcamp</span>
+              <span class="cert__issuer">Dibimbing.id · 2024</span>
+            </div>
+          </a>
+          <a class="cert reveal" href="#" target="_blank" rel="noopener">
+            <span class="cert__icon">📜</span>
+            <div>
+              <span class="cert__name">Tambahkan sertifikatmu</span>
+              <span class="cert__issuer">Penerbit · Tahun</span>
+            </div>
+          </a>
+          <p class="certs__note">💡 Ganti link <code>href="#"</code> dengan URL sertifikatmu (mis. dari LinkedIn/Credly).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Skills ===== -->
+  <section class="section" id="skills">
+    <div class="container">
+      <p class="section__tag">03 — Skills</p>
       <h2 class="section__title">Tools & Teknologi</h2>
       <div class="skills" id="skillsGrid">
         <!-- diisi lewat script.js -->
@@ -123,9 +192,9 @@ print(<span class="c-str">"📈 insight ready"</span>)</pre>
   </section>
 
   <!-- ===== Projects ===== -->
-  <section class="section" id="projects">
+  <section class="section section--alt" id="projects">
     <div class="container">
-      <p class="section__tag">03 — Projects</p>
+      <p class="section__tag">04 — Projects</p>
       <h2 class="section__title">Portfolio Projects</h2>
       <p class="section__lead">Beberapa project data yang pernah saya kerjakan. Klik untuk lihat detail di GitHub.</p>
       <div class="projects" id="projectsGrid">
@@ -134,10 +203,47 @@ print(<span class="c-str">"📈 insight ready"</span>)</pre>
     </div>
   </section>
 
+  <!-- ===== Dashboards ===== -->
+  <section class="section" id="dashboards">
+    <div class="container">
+      <p class="section__tag">05 — Dashboards</p>
+      <h2 class="section__title">Live Dashboard Demo</h2>
+      <p class="section__lead">
+        Dashboard interaktif yang bisa langsung kamu coba di browser. Semua angka di sini adalah
+        <strong>data dummy</strong> untuk demonstrasi — bukan data perusahaan/asli.
+      </p>
+      <div class="dash">
+        <a class="dash__card reveal" href="dashboards/sales-operational.html">
+          <div class="dash__preview dash__preview--sales">
+            <span class="dash__badge">DATA DUMMY</span>
+            <div class="dash__bars"><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="dash__body">
+            <h3 class="dash__name">📊 Sales Operational Dashboard</h3>
+            <p class="dash__desc">Monitoring realisasi vs target penjualan produk (WIFI, HSI, Bandwidth) per Witel Regional 4 Kalimantan — lengkap dengan KPI, achievement, dan tren.</p>
+            <span class="dash__cta">Buka demo →</span>
+          </div>
+        </a>
+
+        <a class="dash__card reveal" href="dashboards/xgboost-forecast.html">
+          <div class="dash__preview dash__preview--xgb">
+            <span class="dash__badge">DATA DUMMY</span>
+            <svg viewBox="0 0 200 90" preserveAspectRatio="none" class="dash__spark"><polyline points="0,70 30,55 60,60 90,35 120,40 150,20 200,15" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+          </div>
+          <div class="dash__body">
+            <h3 class="dash__name">🩺 XGBoost Forecast Dashboard</h3>
+            <p class="dash__desc">Prediksi 10 penyakit terbanyak penyebab rawat inap menggunakan XGBoost — actual vs forecast, feature importance, dan metrik model.</p>
+            <span class="dash__cta">Buka demo →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== Contact ===== -->
   <section class="section section--alt" id="contact">
     <div class="container">
-      <p class="section__tag">04 — Contact</p>
+      <p class="section__tag">06 — Contact</p>
       <h2 class="section__title">Mari Terhubung</h2>
       <p class="section__lead">Tertarik berkolaborasi atau punya pertanyaan? Jangan ragu untuk menghubungi saya.</p>
       <div class="contact">
