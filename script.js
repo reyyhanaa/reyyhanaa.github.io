@@ -17,25 +17,25 @@ const SKILLS = [
 const PROJECTS = [
   {
     name: "XGBoost Disease Forecast",
-    desc: "Algoritma XGBoost untuk memprediksi 10 penyakit paling umum penyebab rawat inap.",
+    desc: "An XGBoost model to predict the 10 most common diseases that lead to inpatient admissions.",
     tags: ["Python", "XGBoost", "Forecasting"],
     url: "https://github.com/reyyhanaa/xgboost-forecast-inpatients-disease",
   },
   {
     name: "Exploratory Data Analysis",
-    desc: "Project EDA dari program Dibimbing: data cleaning, hapus duplikat, dan handling missing values.",
+    desc: "An EDA project from the Dibimbing program: data cleaning, removing duplicates, and handling missing values.",
     tags: ["Python", "EDA", "Data Cleaning"],
     url: "https://github.com/reyyhanaa/exploratory-data-analysis",
   },
   {
     name: "Kimia Farma Big Data Analyst",
-    desc: "Project-based internship (Rakamin): analisis data penjualan obat via Google BigQuery & Looker Studio.",
+    desc: "Project-based internship (Rakamin): analyzing drug sales data with Google BigQuery & Looker Studio.",
     tags: ["BigQuery", "Looker Studio", "Analytics"],
     url: "https://github.com/reyyhanaa/pbi-rakamin-kimiafarma-bigdataanalyst",
   },
   {
     name: "User Behavior Analysis",
-    desc: "Analisis data transaksi kartu kredit untuk mengungkap perilaku user, pola belanja, & risiko finansial.",
+    desc: "Analyzing credit card transaction data to uncover user behavior, spending patterns, and financial risk.",
     tags: ["SQL", "Analytics", "Finance"],
     url: "https://github.com/reyyhanaa/user-behavior-analysis",
   },
@@ -66,7 +66,7 @@ projectsGrid.innerHTML = PROJECTS.map(
   <article class="project reveal">
     <div class="project__top">
       <span class="project__folder">📁</span>
-      <a class="project__link" href="${p.url}" target="_blank" rel="noopener" aria-label="Buka ${p.name} di GitHub">↗</a>
+      <a class="project__link" href="${p.url}" target="_blank" rel="noopener" aria-label="Open ${p.name} on GitHub">↗</a>
     </div>
     <h3 class="project__name">${p.name}</h3>
     <p class="project__desc">${p.desc}</p>
