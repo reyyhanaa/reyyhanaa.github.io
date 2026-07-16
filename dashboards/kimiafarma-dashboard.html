@@ -7,6 +7,8 @@
   <meta name="description" content="Dashboard analisis kinerja penjualan Kimia Farma 2020-2023 — recreated dari Looker Studio ke HTML." />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💊</text></svg>" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root{
@@ -52,6 +54,13 @@
     .card h3{font-size:.98rem;text-align:center;color:var(--text);margin-bottom:12px}
     .chart-box{position:relative;height:280px}
     .chart-box--tall{height:340px}
+    #kfmap{height:340px;border-radius:8px;overflow:hidden;z-index:0}
+    .maplegend{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center;margin-top:10px;font-size:.74rem;color:var(--dim)}
+    .maplegend .lg-dots{display:flex;align-items:center;gap:8px}
+    .maplegend .dot{background:#ffd27a;border:1px solid #d99a2e;border-radius:50%;display:inline-block}
+    .maplegend .dot.sm{width:8px;height:8px}
+    .maplegend .dot.lg{width:22px;height:22px}
+    .maplegend .grad{width:120px;height:12px;border-radius:6px;background:linear-gradient(90deg,#ffe9a8,#F58220)}
 
     table{width:100%;border-collapse:collapse;font-size:.86rem}
     th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right}
@@ -90,7 +99,15 @@
       <!-- LEFT -->
       <div>
         <div class="card"><h3>Pendapatan Kimia Farma 2020–2023</h3><div class="chart-box"><canvas id="cRevenue"></canvas></div></div>
-        <div class="card"><h3>Total Profit dari Masing-Masing Provinsi</h3><div class="chart-box chart-box--tall"><canvas id="cProfit"></canvas></div><p class="note">Ditampilkan sebagai bar chart (versi Looker memakai peta Indonesia).</p></div>
+        <div class="card"><h3>Total Profit dari Masing-Masing Provinsi</h3>
+          <div id="kfmap"></div>
+          <div class="maplegend">
+            <span>nett_profit</span>
+            <span class="lg-dots"><span class="dot sm"></span><span class="dot lg"></span></span>
+            <span class="grad"></span>
+            <span>Rp619 jt &nbsp;→&nbsp; Rp29,1 M</span>
+          </div>
+        </div>
       </div>
       <!-- RIGHT -->
       <div>
@@ -108,28 +125,28 @@
   <script>
     /* ================= DATA ================= */
     const TX_TOTAL=672458, CUST_TOTAL=264601, PROFIT_TOTAL=98.54e9, RATING_AVG=4.4;
-    // [nama, bobot transaksi, nett_sales (miliar), rating_cabang, rating_transaksi]
+    // [nama, bobot transaksi, nett_sales (miliar), rating_cabang, rating_transaksi, lat, lng]
     const PROV = [
-      ["Jawa Barat",195,100,4.41,4.2],
-      ["Sumatera Utara",48,27,4.38,4.1],
-      ["Jawa Tengah",45,25,4.40,4.15],
-      ["Jawa Timur",40,22,4.39,4.2],
-      ["Sulawesi Selatan",36,18,4.46,4.0],
-      ["Sumatera Barat",33,16,4.42,4.1],
-      ["Aceh",30,12,4.37,4.1],
-      ["Nusa Tenggara Barat",28,11,4.35,4.2],
-      ["Kalimantan Timur",26,10,4.47,4.0],
-      ["Riau",24,9.5,4.36,4.1],
-      ["DI Yogyakarta",22,8,4.46,4.0],
-      ["Sulawesi Utara",20,7.5,4.48,4.0],
-      ["Banten",19,7,4.34,4.2],
-      ["Lampung",18,6.5,4.33,4.1],
-      ["Sumatera Selatan",17,6,4.35,4.1],
-      ["Bali",16,5.5,4.44,4.2],
-      ["Kalimantan Selatan",14,5,4.34,4.1],
-      ["Kalimantan Barat",12,4.5,4.32,4.1],
-      ["Maluku",8,3,4.52,4.0],
-      ["Papua",7,2.5,4.30,4.1],
+      ["Jawa Barat",195,100,4.41,4.2,-6.9,107.6],
+      ["Sumatera Utara",48,27,4.38,4.1,3.6,98.7],
+      ["Jawa Tengah",45,25,4.40,4.15,-7.2,110.4],
+      ["Jawa Timur",40,22,4.39,4.2,-7.6,112.7],
+      ["Sulawesi Selatan",36,18,4.46,4.0,-5.1,119.5],
+      ["Sumatera Barat",33,16,4.42,4.1,-0.9,100.4],
+      ["Aceh",30,12,4.37,4.1,5.5,95.3],
+      ["Nusa Tenggara Barat",28,11,4.35,4.2,-8.6,116.1],
+      ["Kalimantan Timur",26,10,4.47,4.0,-0.5,117.1],
+      ["Riau",24,9.5,4.36,4.1,0.5,101.4],
+      ["DI Yogyakarta",22,8,4.46,4.0,-7.8,110.4],
+      ["Sulawesi Utara",20,7.5,4.48,4.0,1.5,124.8],
+      ["Banten",19,7,4.34,4.2,-6.4,106.1],
+      ["Lampung",18,6.5,4.33,4.1,-5.4,105.3],
+      ["Sumatera Selatan",17,6,4.35,4.1,-3.0,104.8],
+      ["Bali",16,5.5,4.44,4.2,-8.4,115.2],
+      ["Kalimantan Selatan",14,5,4.34,4.1,-3.3,114.6],
+      ["Kalimantan Barat",12,4.5,4.32,4.1,-0.0,109.3],
+      ["Maluku",8,3,4.52,4.0,-3.7,128.2],
+      ["Papua",7,2.5,4.30,4.1,-2.5,140.7],
     ];
     const sumW = PROV.reduce((s,p)=>s+p[1],0);
     // bangun objek per provinsi (alokasi proporsional agar total = KPI headline)
@@ -139,7 +156,7 @@
       cust: Math.round(CUST_TOTAL * p[1]/sumW),
       profit: PROFIT_TOTAL * p[1]/sumW,
       sales:  p[2]*1e9,
-      rc:p[3], rt:p[4],
+      rc:p[3], rt:p[4], lat:p[5], lng:p[6],
     }));
 
     // tabel rating (persis seperti dashboard Looker)
@@ -191,8 +208,42 @@
         `<tr><td class="rank">${i+1}.</td><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
     }
 
-    let chRev,chProfit,chSales,chTx;
+    let chRev,chSales,chTx;
     const highlight = (arr,sel) => arr.map(d=>d.name===sel?CLR.orange:CLR.blue);
+
+    /* ===== MAP (Total Profit per Provinsi) ===== */
+    const PMIN=619155804.45, PMAX=29104802788.15;
+    function profitColor(v){
+      const t=Math.max(0,Math.min(1,(v-PMIN)/(PMAX-PMIN)));
+      const a=[255,233,168], b=[245,130,32];
+      const c=a.map((x,i)=>Math.round(x+(b[i]-x)*t));
+      return `rgb(${c[0]},${c[1]},${c[2]})`;
+    }
+    function profitRadius(v){
+      const t=Math.max(0.03,Math.min(1,(v-PMIN)/(PMAX-PMIN)));
+      return 6 + Math.sqrt(t)*32;
+    }
+    let kfmap, markers=[];
+    function initMap(){
+      kfmap = L.map('kfmap',{scrollWheelZoom:false,attributionControl:true}).setView([-2.2,118],4);
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {attribution:'Tiles © Esri',maxZoom:12}).addTo(kfmap);
+      DATA.forEach(d=>{
+        const m=L.circleMarker([d.lat,d.lng],{
+          radius:profitRadius(d.profit), fillColor:profitColor(d.profit),
+          color:'#a85e0d', weight:1, fillOpacity:.85
+        }).bindPopup(`<b>${d.name}</b><br>nett_profit: Rp${(d.profit/1e9).toFixed(2)} M`);
+        m._prov=d.name; m.addTo(kfmap); markers.push(m);
+      });
+      setTimeout(()=>kfmap.invalidateSize(),200);
+    }
+    function highlightMap(sel){
+      markers.forEach(m=>{
+        const on = m._prov===sel;
+        m.setStyle({weight:on?3:1, color:on?'#1878C4':'#a85e0d'});
+        if(on){ kfmap.panTo(m.getLatLng()); m.openPopup(); }
+      });
+    }
 
     function renderCharts(sel){
       const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
@@ -204,14 +255,6 @@
         {label:"nett_profit",data:REV_BASE.map(v=>+(v*(sel==="all"?1:share*PROV.length*0.5+0.2)).toFixed(3)),
          borderColor:CLR.blue,backgroundColor:"rgba(24,120,196,.10)",fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
         options:{...base,scales:{x:{ticks:{maxTicksLimit:8,autoSkip:true}},y:{ticks:{callback:v=>v.toFixed(2)+"B"}}}}});
-
-      // profit per provinsi (top 10) — orange (map replacement)
-      const byProfit=[...DATA].sort((a,b)=>b.profit-a.profit).slice(0,10);
-      if(chProfit) chProfit.destroy();
-      chProfit = new Chart(document.getElementById("cProfit"),{type:"bar",data:{labels:byProfit.map(d=>d.name),datasets:[
-        {label:"Total Profit",data:byProfit.map(d=>+(d.profit/1e9).toFixed(2)),
-         backgroundColor:byProfit.map(d=>d.name===sel?CLR.blue:CLR.orange),borderRadius:4}]},
-        options:{...base,indexAxis:"y",scales:{x:{ticks:{callback:v=>v+"B"},title:{display:true,text:"Profit (miliar Rp)"}}}}});
 
       // nett_sales top 10 (horizontal, blue)
       const bySales=[...DATA].sort((a,b)=>b.sales-a.sales).slice(0,10);
@@ -230,11 +273,12 @@
         options:{...base,scales:{x:{ticks:{maxRotation:40,minRotation:40,font:{size:9}}},y:{ticks:{callback:v=>(v/1000)+"K"}}}}});
     }
 
-    function refresh(){ const sel=fProv.value; renderKpis(sel); renderCharts(sel); }
+    function refresh(){ const sel=fProv.value; renderKpis(sel); renderCharts(sel); if(kfmap) highlightMap(sel); }
     fProv.addEventListener("change",refresh);
 
     /* init */
     renderRatingTable();
+    initMap();
     refresh();
   </script>
 </body>
