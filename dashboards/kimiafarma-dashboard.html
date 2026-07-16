@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Kinerja Kimia Farma 2020–2023 — Reyhana Nuri Syahfa</title>
+  <meta name="description" content="Dashboard analisis kinerja penjualan Kimia Farma 2020-2023 — recreated dari Looker Studio ke HTML." />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💊</text></svg>" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --blue:#1878C4; --blue-d:#0f5a99; --sky:#4BA3E3; --orange:#F58220;
+      --headbg:#bfe0f4; --bg:#eef3f8; --card:#ffffff; --text:#14304a; --dim:#5b6b7b; --border:#dbe6f0;
+      --radius:12px; --shadow:0 6px 16px -9px rgba(20,50,90,.28);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"Inter",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+    h1,h2,h3{font-family:"Sora",sans-serif}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1280px;margin:0 auto;padding:0 18px}
+
+    /* header */
+    .appbar{background:var(--headbg);position:sticky;top:0;z-index:30;border-bottom:1px solid #a9cfe8}
+    .appbar__in{display:flex;align-items:center;gap:16px;padding:12px 18px;max-width:1280px;margin:0 auto;flex-wrap:wrap}
+    .back{color:var(--blue-d);font-size:.84rem;font-weight:600;white-space:nowrap}
+    .back:hover{text-decoration:underline}
+    .kf{display:flex;align-items:center;gap:6px;font-family:"Sora";font-weight:800;font-size:1.15rem;color:var(--blue)}
+    .kf svg{width:26px;height:18px}
+    .kf b{font-weight:800}
+    .appbar h1{font-size:clamp(1rem,2.4vw,1.5rem);color:#0e2c47;font-weight:700;flex:1;min-width:200px}
+    .daterange{background:#fff;border:1px solid #b6d4ea;border-radius:8px;padding:8px 14px;font-size:.85rem;color:var(--dim);display:flex;align-items:center;gap:8px}
+
+    /* filters */
+    .filters{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin:20px 0 18px}
+    .fbox{display:flex;flex-direction:column;gap:5px;min-width:210px}
+    .fbox label{font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding-left:2px}
+    select{appearance:none;background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 14px center;
+      color:#fff;border:0;border-radius:8px;padding:11px 34px 11px 16px;font-family:inherit;font-size:.92rem;font-weight:600;cursor:pointer;width:100%}
+    select:focus{outline:2px solid var(--blue-d)}
+    select:disabled{opacity:.75;cursor:not-allowed}
+
+    /* KPI */
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+    .kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;text-align:center;box-shadow:var(--shadow)}
+    .kpi__l{font-size:.76rem;color:var(--dim);font-weight:500}
+    .kpi__v{font-family:"Sora";font-size:1.7rem;font-weight:700;color:var(--text);margin-top:3px;line-height:1.1}
+
+    /* grid */
+    .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);margin-bottom:16px}
+    .card h3{font-size:.98rem;text-align:center;color:var(--text);margin-bottom:12px}
+    .chart-box{position:relative;height:280px}
+    .chart-box--tall{height:340px}
+
+    table{width:100%;border-collapse:collapse;font-size:.86rem}
+    th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right}
+    th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+    thead th{color:var(--dim);font-size:.74rem;text-transform:uppercase;letter-spacing:.3px;font-weight:700}
+    tbody tr:hover{background:#f4f9fd}
+    .rank{color:var(--dim)}
+
+    .note{font-size:.78rem;color:var(--dim);text-align:center;margin-top:8px}
+    footer{text-align:center;color:var(--dim);font-size:.8rem;padding:20px;border-top:1px solid var(--border);margin-top:8px}
+
+    @media(max-width:840px){.cols{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div class="appbar"><div class="appbar__in">
+    <a class="back" href="../index.html#dashboards">← Portfolio</a>
+    <span class="kf">
+      <svg viewBox="0 0 60 40"><path d="M4 30 Q30 2 56 18" fill="none" stroke="#F58220" stroke-width="7" stroke-linecap="round"/></svg>
+      kimia<b>farma</b>
+    </span>
+    <h1>Dashboard Analisis Kinerja Kimia Farma Tahun 2020–2023</h1>
+    <span class="daterange">📅 Rentang Tanggal: Jan 2020 – Des 2023</span>
+  </div></div>
+
+  <div class="wrap">
+    <div class="filters">
+      <div class="fbox"><label>Nama Cabang</label><select id="fCabang"><option>Semua Cabang</option></select></div>
+      <div class="fbox"><label>Kota</label><select id="fKota"><option>Semua Kota</option></select></div>
+      <div class="fbox"><label>Provinsi</label><select id="fProvinsi"></select></div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="cols">
+      <!-- LEFT -->
+      <div>
+        <div class="card"><h3>Pendapatan Kimia Farma 2020–2023</h3><div class="chart-box"><canvas id="cRevenue"></canvas></div></div>
+        <div class="card"><h3>Total Profit dari Masing-Masing Provinsi</h3><div class="chart-box chart-box--tall"><canvas id="cProfit"></canvas></div><p class="note">Ditampilkan sebagai bar chart (versi Looker memakai peta Indonesia).</p></div>
+      </div>
+      <!-- RIGHT -->
+      <div>
+        <div class="card"><h3>Top 5 Provinsi: Rating Cabang Tinggi, Rating Transaksi Rendah</h3>
+          <table><thead><tr><th>#</th><th>Provinsi</th><th>Rating Transaksi</th><th>Rating Cabang</th></tr></thead><tbody id="ratingTable"></tbody></table>
+        </div>
+        <div class="card"><h3>Top 10 Harga Setelah Diskon (nett_sales) per Provinsi</h3><div class="chart-box"><canvas id="cSales"></canvas></div></div>
+        <div class="card"><h3>Top 10 Total Transaksi per Provinsi</h3><div class="chart-box"><canvas id="cTx"></canvas></div></div>
+      </div>
+    </div>
+
+    <footer>Dibuat oleh Reyhana Nuri Syahfa · Analisis penjualan Kimia Farma (BigQuery) · Reka ulang HTML dari dashboard Looker Studio · Data project internship Rakamin</footer>
+  </div>
+
+  <script>
+    /* ================= DATA ================= */
+    const TX_TOTAL=672458, CUST_TOTAL=264601, PROFIT_TOTAL=98.54e9, RATING_AVG=4.4;
+    // [nama, bobot transaksi, nett_sales (miliar), rating_cabang, rating_transaksi]
+    const PROV = [
+      ["Jawa Barat",195,100,4.41,4.2],
+      ["Sumatera Utara",48,27,4.38,4.1],
+      ["Jawa Tengah",45,25,4.40,4.15],
+      ["Jawa Timur",40,22,4.39,4.2],
+      ["Sulawesi Selatan",36,18,4.46,4.0],
+      ["Sumatera Barat",33,16,4.42,4.1],
+      ["Aceh",30,12,4.37,4.1],
+      ["Nusa Tenggara Barat",28,11,4.35,4.2],
+      ["Kalimantan Timur",26,10,4.47,4.0],
+      ["Riau",24,9.5,4.36,4.1],
+      ["DI Yogyakarta",22,8,4.46,4.0],
+      ["Sulawesi Utara",20,7.5,4.48,4.0],
+      ["Banten",19,7,4.34,4.2],
+      ["Lampung",18,6.5,4.33,4.1],
+      ["Sumatera Selatan",17,6,4.35,4.1],
+      ["Bali",16,5.5,4.44,4.2],
+      ["Kalimantan Selatan",14,5,4.34,4.1],
+      ["Kalimantan Barat",12,4.5,4.32,4.1],
+      ["Maluku",8,3,4.52,4.0],
+      ["Papua",7,2.5,4.30,4.1],
+    ];
+    const sumW = PROV.reduce((s,p)=>s+p[1],0);
+    // bangun objek per provinsi (alokasi proporsional agar total = KPI headline)
+    const DATA = PROV.map(p=>({
+      name:p[0],
+      tx:   Math.round(TX_TOTAL   * p[1]/sumW),
+      cust: Math.round(CUST_TOTAL * p[1]/sumW),
+      profit: PROFIT_TOTAL * p[1]/sumW,
+      sales:  p[2]*1e9,
+      rc:p[3], rt:p[4],
+    }));
+
+    // tabel rating (persis seperti dashboard Looker)
+    const RATING_ROWS = [
+      ["Maluku",4,4.52],["DI Yogyakarta",4,4.46],["Sulawesi Utara",4,4.48],
+      ["Sulawesi Selatan",4,4.46],["Kalimantan Timur",4,4.47],
+    ];
+
+    // tren pendapatan bulanan (nett_profit) Jan 2020 - Des 2023
+    const pseudo = i => { const x=Math.sin(i*12.9898)*43758.5453; return x-Math.floor(x); };
+    const ML=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"];
+    const REV_LABELS=[], REV_BASE=[];
+    let k=0;
+    for(let y=2020;y<=2023;y++) for(let m=0;m<12;m++){
+      REV_LABELS.push(`${ML[m]} ${y}`);
+      let v = 2.0 + Math.sin(k/2.1)*0.09 + (pseudo(k)-0.5)*0.10;   // ~1.85 - 2.15 B
+      if(pseudo(k*1.7)>0.86) v -= 0.11;                            // sesekali dip tajam
+      REV_BASE.push(+(v).toFixed(3));
+      k++;
+    }
+
+    /* ================= HELPERS ================= */
+    const fmtInt = n => Math.round(n).toLocaleString("id-ID");
+    const fmtRp  = v => "Rp" + (v/1e9).toFixed(2) + "B";
+    const CLR = {blue:"#1878C4",sky:"#4BA3E3",orange:"#F58220",dim:"#5b6b7b",grid:"rgba(20,50,90,.08)"};
+    Chart.defaults.font.family="Inter, sans-serif";
+    Chart.defaults.color=CLR.dim;
+    Chart.defaults.borderColor=CLR.grid;
+
+    /* ================= FILTER ================= */
+    const fProv = document.getElementById("fProvinsi");
+    fProv.innerHTML = `<option value="all">Semua Provinsi</option>` + DATA.map(d=>`<option>${d.name}</option>`).join("");
+
+    /* ================= RENDER ================= */
+    function renderKpis(sel){
+      let cust,tx,profit,rating;
+      if(sel==="all"){ cust=CUST_TOTAL; tx=TX_TOTAL; profit=PROFIT_TOTAL; rating=RATING_AVG; }
+      else { const d=DATA.find(x=>x.name===sel); cust=d.cust; tx=d.tx; profit=d.profit; rating=d.rc; }
+      document.getElementById("kpis").innerHTML=[
+        {l:"Jumlah Customer",v:fmtInt(cust)},
+        {l:"Total Transaksi",v:fmtInt(tx)},
+        {l:"Total Keuntungan",v:fmtRp(profit)},
+        {l:"Rata-Rata Rating Cabang",v:rating.toFixed(rating===RATING_AVG?1:2)},
+      ].map(c=>`<div class="kpi"><div class="kpi__l">${c.l}</div><div class="kpi__v">${c.v}</div></div>`).join("");
+    }
+
+    function renderRatingTable(){
+      document.getElementById("ratingTable").innerHTML = RATING_ROWS.map((r,i)=>
+        `<tr><td class="rank">${i+1}.</td><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+    }
+
+    let chRev,chProfit,chSales,chTx;
+    const highlight = (arr,sel) => arr.map(d=>d.name===sel?CLR.orange:CLR.blue);
+
+    function renderCharts(sel){
+      const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
+      const share = sel==="all" ? 1 : (DATA.find(x=>x.name===sel).tx / TX_TOTAL);
+
+      // revenue line
+      if(chRev) chRev.destroy();
+      chRev = new Chart(document.getElementById("cRevenue"),{type:"line",data:{labels:REV_LABELS,datasets:[
+        {label:"nett_profit",data:REV_BASE.map(v=>+(v*(sel==="all"?1:share*PROV.length*0.5+0.2)).toFixed(3)),
+         borderColor:CLR.blue,backgroundColor:"rgba(24,120,196,.10)",fill:true,tension:.35,pointRadius:0,borderWidth:2}]},
+        options:{...base,scales:{x:{ticks:{maxTicksLimit:8,autoSkip:true}},y:{ticks:{callback:v=>v.toFixed(2)+"B"}}}}});
+
+      // profit per provinsi (top 10) — orange (map replacement)
+      const byProfit=[...DATA].sort((a,b)=>b.profit-a.profit).slice(0,10);
+      if(chProfit) chProfit.destroy();
+      chProfit = new Chart(document.getElementById("cProfit"),{type:"bar",data:{labels:byProfit.map(d=>d.name),datasets:[
+        {label:"Total Profit",data:byProfit.map(d=>+(d.profit/1e9).toFixed(2)),
+         backgroundColor:byProfit.map(d=>d.name===sel?CLR.blue:CLR.orange),borderRadius:4}]},
+        options:{...base,indexAxis:"y",scales:{x:{ticks:{callback:v=>v+"B"},title:{display:true,text:"Profit (miliar Rp)"}}}}});
+
+      // nett_sales top 10 (horizontal, blue)
+      const bySales=[...DATA].sort((a,b)=>b.sales-a.sales).slice(0,10);
+      if(chSales) chSales.destroy();
+      chSales = new Chart(document.getElementById("cSales"),{type:"bar",data:{labels:bySales.map(d=>d.name),datasets:[
+        {label:"nett_sales",data:bySales.map(d=>+(d.sales/1e9).toFixed(1)),
+         backgroundColor:highlight(bySales,sel),borderRadius:4}]},
+        options:{...base,indexAxis:"y",scales:{x:{ticks:{callback:v=>v+"B"}}}}});
+
+      // transaksi top 10 (vertical, sky)
+      const byTx=[...DATA].sort((a,b)=>b.tx-a.tx).slice(0,10);
+      if(chTx) chTx.destroy();
+      chTx = new Chart(document.getElementById("cTx"),{type:"bar",data:{labels:byTx.map(d=>d.name),datasets:[
+        {label:"transaction_id",data:byTx.map(d=>d.tx),
+         backgroundColor:byTx.map(d=>d.name===sel?CLR.orange:CLR.sky),borderRadius:4}]},
+        options:{...base,scales:{x:{ticks:{maxRotation:40,minRotation:40,font:{size:9}}},y:{ticks:{callback:v=>(v/1000)+"K"}}}}});
+    }
+
+    function refresh(){ const sel=fProv.value; renderKpis(sel); renderCharts(sel); }
+    fProv.addEventListener("change",refresh);
+
+    /* init */
+    renderRatingTable();
+    refresh();
+  </script>
+</body>
+</html>
