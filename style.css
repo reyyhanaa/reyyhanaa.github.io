@@ -234,7 +234,7 @@ strong { color: var(--text); font-weight: 600; }
 .avatar__initials { font-family: "Sora"; font-weight: 800; font-size: 2.2rem; color: #06231b; letter-spacing: -1px; }
 
 /* ---- Experience / Timeline ---- */
-.exp { display: block; max-width: 760px; }
+.exp { display: grid; grid-template-columns: 1.55fr 1fr; gap: 40px; align-items: start; }
 .timeline { position: relative; padding-left: 26px; }
 .timeline::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
 .tl-item { position: relative; padding: 0 0 30px 18px; }
