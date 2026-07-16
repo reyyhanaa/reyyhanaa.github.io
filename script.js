@@ -4,20 +4,20 @@
 
 /* ---------- Data ---------- */
 const SKILLS = [
+  { icon: "📗", name: "Microsoft Excel", cat: "Spreadsheet" },
+  { icon: "📊", name: "Power BI", cat: "BI Tool" },
+  { icon: "📈", name: "Looker Studio", cat: "BI / Viz" },
+  { icon: "🗃️", name: "SQL", cat: "Query" },
   { icon: "🐍", name: "Python", cat: "Language" },
-  { icon: "🗃️", name: "SQL", cat: "Language" },
-  { icon: "📓", name: "Jupyter", cat: "Environment" },
-  { icon: "🐼", name: "Pandas", cat: "Library" },
-  { icon: "🤖", name: "Scikit-learn", cat: "ML" },
-  { icon: "🌳", name: "XGBoost", cat: "ML" },
   { icon: "☁️", name: "BigQuery", cat: "Cloud" },
-  { icon: "📊", name: "Looker Studio", cat: "Viz" },
+  { icon: "🐼", name: "Pandas", cat: "Library" },
+  { icon: "🌳", name: "XGBoost", cat: "ML" },
 ];
 
 const PROJECTS = [
   {
     name: "XGBoost Disease Forecast",
-    desc: "An XGBoost model to predict the 10 most common diseases that lead to inpatient admissions.",
+    desc: "Undergraduate thesis: forecasting the top 10 inpatient diseases at RS Pertamina Balikpapan from 150k+ records using XGBoost.",
     tags: ["Python", "XGBoost", "Forecasting"],
     url: "https://github.com/reyyhanaa/xgboost-forecast-inpatients-disease",
   },
@@ -29,7 +29,7 @@ const PROJECTS = [
   },
   {
     name: "Kimia Farma Big Data Analyst",
-    desc: "Project-based internship (Rakamin): analyzing drug sales data with Google BigQuery & Looker Studio.",
+    desc: "Rakamin internship: analyzed 500k+ rows in BigQuery (nett_sales, nett_profit, gross_laba) and built a Looker Studio dashboard.",
     tags: ["BigQuery", "Looker Studio", "Analytics"],
     url: "https://github.com/reyyhanaa/pbi-rakamin-kimiafarma-bigdataanalyst",
   },
@@ -43,8 +43,8 @@ const PROJECTS = [
 
 const TYPED_ROLES = [
   "Data Analyst",
-  "Data Science Enthusiast",
-  "Machine Learning Explorer",
+  "Business Intelligence Enthusiast",
+  "Information Systems Graduate",
   "Data Storyteller",
 ];
 
@@ -155,24 +155,27 @@ document.querySelectorAll(".section__title, .section__tag, .section__lead, .abou
   io.observe(el);
 });
 
-/* ---------- Animated counters ---------- */
+/* ---------- Animated counters (hero is near the top → animate on load) ---------- */
+function animateCounter(el) {
+  if (el.dataset.done) return;
+  el.dataset.done = "1";
+  const target = +el.dataset.count;
+  const suffix = el.dataset.suffix || "";
+  let cur = 0;
+  const step = Math.max(1, Math.ceil(target / 40));
+  const timer = setInterval(() => {
+    cur += step;
+    if (cur >= target) { cur = target; clearInterval(timer); }
+    el.textContent = cur + suffix;
+  }, 30);
+}
 const counters = document.querySelectorAll(".stat__num");
+// animate shortly after load
+setTimeout(() => counters.forEach(animateCounter), 250);
+// and also on scroll into view (in case load fires before layout)
 const counterIO = new IntersectionObserver((entries) => {
-  entries.forEach((e) => {
-    if (!e.isIntersecting) return;
-    const el = e.target;
-    const target = +el.dataset.count;
-    const suffix = el.dataset.suffix || "";
-    let cur = 0;
-    const step = Math.max(1, Math.floor(target / 40));
-    const timer = setInterval(() => {
-      cur += step;
-      if (cur >= target) { cur = target; clearInterval(timer); }
-      el.textContent = cur + suffix;
-    }, 30);
-    counterIO.unobserve(el);
-  });
-}, { threshold: 0.5 });
+  entries.forEach((e) => { if (e.isIntersecting) animateCounter(e.target); });
+}, { threshold: 0.3 });
 counters.forEach((c) => counterIO.observe(c));
 
 /* ---------- Footer year ---------- */
