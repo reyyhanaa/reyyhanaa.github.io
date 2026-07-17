@@ -234,7 +234,7 @@
 
       if(chCat) chCat.destroy();
       chCat = new Chart(document.getElementById("cCategory"),{type:"doughnut",data:{labels:cLabels,datasets:[
-        {data:cReal,backgroundColor:[CLR.teal,CLR.violet,CLR.amber,CLR.sky],borderWidth:0}]},
+        {data:cReal,backgroundColor:cLabels.map(c=>CAT_COLOR[c]),borderWidth:0}]},
         options:{...base,cutout:"62%"}});
 
       if(chSegmen) chSegmen.destroy();
@@ -262,38 +262,56 @@
     const PY_SHAPE  = MONTHLY_PY.map(v=>v/CUR_SUM);     // tahun lalu (jumlah ~0.9 → lebih rendah)
     let trendView = "monthly";
     let chTrend;
-    const CAT_COLOR = {"Fixed Broadband":CLR.teal,"Internet":CLR.sky,"Data":CLR.violet,"Media":CLR.amber};
+    // 4 warna yang jelas berbeda (hijau, biru, oranye, magenta) agar tidak tertukar
+    const CAT_COLOR = {"Fixed Broadband":"#2dd4bf","Internet":"#3b82f6","Data":"#f59e0b","Media":"#ec4899"};
     const fTrendProduct = document.getElementById("fTrendProduct");
     fTrendProduct.innerHTML = `<option value="all">Semua Produk</option>` + PRODUCTS.map(p=>`<option>${p.name}</option>`).join("");
 
-    function monthly(recs){
-      const total = recs.reduce((s,r)=>s+r.real,0);
+    // sebar total tahunan ke 12 bulan mengikuti pola musiman; jumlah 12 bulan = total (persis seperti tabel)
+    function distribute(total){
       let d = CUR_SHAPE.map(f=>Math.round(total*f));
+      d[11] += total - d.reduce((a,b)=>a+b,0);       // sisa pembulatan diserap Desember → sum === total
       if(trendView==="ytd") d = d.map((_,i)=>d.slice(0,i+1).reduce((s,v)=>s+v,0));
       return d;
+    }
+    function lineSet(label,color,recs){
+      const real = recs.reduce((s,r)=>s+r.real,0);
+      const tgt  = recs.reduce((s,r)=>s+r.target,0);
+      return [
+        {label:`${label} — Realisasi`, data:distribute(real), borderColor:color, backgroundColor:color,
+         tension:.35, pointRadius:2, pointHoverRadius:5, borderWidth:2.6, fill:false},
+        {label:`${label} — Target`, data:distribute(tgt), borderColor:color, backgroundColor:color,
+         borderDash:[6,4], tension:.35, pointRadius:0, pointHoverRadius:5, borderWidth:1.4, fill:false},
+      ];
     }
 
     function renderTrend(){
       if(chTrend) chTrend.destroy();
       const area = fArea.value, prod = fTrendProduct.value;
-      const only = r => (area==="all" || r.area===area);
-      let datasets;
+      const only = r => (area==="all" || r.area===area) && (fCategory.value==="all" || r.category===fCategory.value);
+      let datasets = [];
       if(prod==="all"){
-        // satu garis per kategori produk (4 kategori dalam 1 grafik)
-        datasets = CATEGORIES.map(cat=>{
-          const col = CAT_COLOR[cat];
-          return {label:cat, data:monthly(RECORDS.filter(r=>only(r) && r.category===cat)),
-            borderColor:col, backgroundColor:col+"22", tension:.35, pointRadius:2, fill:false, borderWidth:2};
+        // satu grafik, tiap kategori punya garis Realisasi (solid) + Target (putus-putus)
+        CATEGORIES.filter(c=>fCategory.value==="all"||c===fCategory.value).forEach(cat=>{
+          datasets.push(...lineSet(cat, CAT_COLOR[cat], RECORDS.filter(r=>only(r) && r.category===cat)));
         });
       } else {
         const p = PRODUCTS.find(x=>x.name===prod);
-        const col = CAT_COLOR[p?p.cat:""] || CLR.teal;
-        datasets = [{label:prod, data:monthly(RECORDS.filter(r=>only(r) && r.product===prod)),
-          borderColor:col, backgroundColor:col+"22", tension:.35, pointRadius:2, fill:true, borderWidth:2}];
+        const col = CAT_COLOR[p?p.cat:""] || "#2dd4bf";
+        datasets = lineSet(prod, col, RECORDS.filter(r=>(area==="all"||r.area===area) && r.product===prod));
       }
-      const base = {responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{usePointStyle:true,boxWidth:8}}}};
       chTrend = new Chart(document.getElementById("cTrend"),{type:"line",data:{labels:MONTHS,datasets},
-        options:{...base,scales:{y:{beginAtZero:true}}}});
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          interaction:{mode:"index", intersect:false},
+          plugins:{
+            legend:{labels:{usePointStyle:true, boxWidth:8}},
+            tooltip:{
+              callbacks:{ label: ctx => `${ctx.dataset.label}: ${Math.round(ctx.parsed.y).toLocaleString("id-ID")}` }
+            }
+          },
+          scales:{ y:{ beginAtZero:true, ticks:{ callback:v=>v.toLocaleString("id-ID") } } }
+        }});
     }
 
     document.querySelectorAll("#trendView button").forEach(b=>b.addEventListener("click",()=>{
