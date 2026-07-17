@@ -116,7 +116,7 @@
       <div class="trend-head">
         <div>
           <h3>Tren Realisasi per Kategori Produk</h3>
-          <p class="csub">Realisasi bulanan tiap kategori — tahun berjalan vs tahun lalu (prior year)</p>
+          <p class="csub">Realisasi bulanan tiap kategori produk dalam satu grafik</p>
         </div>
         <div class="trend-controls">
           <div class="seg" id="trendView">
@@ -126,7 +126,7 @@
           <select id="fTrendProduct" aria-label="Filter produk"></select>
         </div>
       </div>
-      <div class="trend-grid" id="trendGrid"></div>
+      <div class="chart-box" style="height:360px"><canvas id="cTrend"></canvas></div>
     </div>
 
     <div class="card tablecard">
@@ -261,48 +261,39 @@
     const CUR_SHAPE = MONTHLY_CUR.map(v=>v/CUR_SUM);   // pola musiman tahun berjalan (jumlah=1)
     const PY_SHAPE  = MONTHLY_PY.map(v=>v/CUR_SUM);     // tahun lalu (jumlah ~0.9 → lebih rendah)
     let trendView = "monthly";
-    let trendCharts = [];
+    let chTrend;
+    const CAT_COLOR = {"Fixed Broadband":CLR.teal,"Internet":CLR.sky,"Data":CLR.violet,"Media":CLR.amber};
     const fTrendProduct = document.getElementById("fTrendProduct");
     fTrendProduct.innerHTML = `<option value="all">Semua Produk</option>` + PRODUCTS.map(p=>`<option>${p.name}</option>`).join("");
 
-    function seriesFor(recs){
+    function monthly(recs){
       const total = recs.reduce((s,r)=>s+r.real,0);
-      let cur = CUR_SHAPE.map(f=>Math.round(total*f));
-      let py  = PY_SHAPE.map(f=>Math.round(total*f));
-      if(trendView==="ytd"){
-        const cum = a => a.map((_,i)=>a.slice(0,i+1).reduce((s,v)=>s+v,0));
-        cur = cum(cur); py = cum(py);
-      }
-      return {cur,py};
+      let d = CUR_SHAPE.map(f=>Math.round(total*f));
+      if(trendView==="ytd") d = d.map((_,i)=>d.slice(0,i+1).reduce((s,v)=>s+v,0));
+      return d;
     }
 
     function renderTrend(){
-      trendCharts.forEach(c=>c.destroy()); trendCharts = [];
+      if(chTrend) chTrend.destroy();
       const area = fArea.value, prod = fTrendProduct.value;
-      let groups;
+      const only = r => (area==="all" || r.area===area);
+      let datasets;
       if(prod==="all"){
-        groups = CATEGORIES.map(cat=>({title:cat, filter:r=>r.category===cat}));
+        // satu garis per kategori produk (4 kategori dalam 1 grafik)
+        datasets = CATEGORIES.map(cat=>{
+          const col = CAT_COLOR[cat];
+          return {label:cat, data:monthly(RECORDS.filter(r=>only(r) && r.category===cat)),
+            borderColor:col, backgroundColor:col+"22", tension:.35, pointRadius:2, fill:false, borderWidth:2};
+        });
       } else {
         const p = PRODUCTS.find(x=>x.name===prod);
-        groups = [{title:prod, subtitle:p?p.cat:"", filter:r=>r.product===prod}];
+        const col = CAT_COLOR[p?p.cat:""] || CLR.teal;
+        datasets = [{label:prod, data:monthly(RECORDS.filter(r=>only(r) && r.product===prod)),
+          borderColor:col, backgroundColor:col+"22", tension:.35, pointRadius:2, fill:true, borderWidth:2}];
       }
-      const grid = document.getElementById("trendGrid");
-      grid.style.gridTemplateColumns = groups.length===1 ? "1fr" : "";
-      grid.innerHTML = groups.map((g,i)=>`
-        <div class="tcard">
-          <h4>${g.title}${g.subtitle?`<span class="tcat">${g.subtitle}</span>`:""}</h4>
-          <div class="chart-box chart-box--sm"><canvas id="trend${i}"></canvas></div>
-        </div>`).join("");
-      const suffix = trendView==="ytd" ? " (kumulatif)" : "";
       const base = {responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{usePointStyle:true,boxWidth:8}}}};
-      groups.forEach((g,i)=>{
-        const recs = RECORDS.filter(r => (area==="all"||r.area===area) && g.filter(r));
-        const {cur,py} = seriesFor(recs);
-        trendCharts.push(new Chart(document.getElementById("trend"+i),{type:"line",data:{labels:MONTHS,datasets:[
-          {label:"Tahun Berjalan"+suffix,data:cur,borderColor:CLR.teal,backgroundColor:CLR.teal+"22",fill:true,tension:.35,pointRadius:2},
-          {label:"Tahun Lalu"+suffix,data:py,borderColor:CLR.violet,borderDash:[5,4],tension:.35,pointRadius:0}]},
-          options:{...base,scales:{y:{beginAtZero:true}}}}));
-      });
+      chTrend = new Chart(document.getElementById("cTrend"),{type:"line",data:{labels:MONTHS,datasets},
+        options:{...base,scales:{y:{beginAtZero:true}}}});
     }
 
     document.querySelectorAll("#trendView button").forEach(b=>b.addEventListener("click",()=>{
