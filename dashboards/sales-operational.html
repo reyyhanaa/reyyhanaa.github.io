@@ -64,8 +64,21 @@
     .pill--bad{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
     .cat-tag{font-size:.76rem;color:var(--dim);background:var(--surface-2);border:1px solid var(--border);padding:2px 9px;border-radius:100px}
 
+    /* trend section */
+    .trendcard{margin-top:18px}
+    .trend-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+    .trend-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .seg button{background:none;border:0;color:var(--dim);padding:9px 15px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s}
+    .seg button.on{background:var(--teal);color:#06231b}
+    .trend-controls select{min-width:180px}
+    .trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .tcard{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+    .tcard h4{font-family:"Sora";font-size:.92rem;font-weight:600;margin-bottom:10px}
+    .tcat{font-size:.7rem;color:var(--dim);font-weight:500;background:var(--surface);border:1px solid var(--border);padding:1px 8px;border-radius:100px;margin-left:6px}
+
     footer{color:var(--dim);font-size:.82rem;text-align:center;margin-top:34px;padding-top:20px;border-top:1px solid var(--border)}
-    @media(max-width:820px){.grid{grid-template-columns:1fr}}
+    @media(max-width:820px){.grid{grid-template-columns:1fr}.trend-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -96,8 +109,24 @@
     <div class="grid">
       <div class="card"><h3>Realisasi vs Target per Area</h3><p class="csub">Perbandingan pencapaian tiap area</p><div class="chart-box"><canvas id="cArea"></canvas></div></div>
       <div class="card"><h3>Kontribusi Realisasi per Kategori</h3><p class="csub">Porsi tiap kategori produk terhadap total</p><div class="chart-box"><canvas id="cCategory"></canvas></div></div>
-      <div class="card card--wide"><h3>Tren Realisasi Bulanan</h3><p class="csub">Tahun berjalan vs tahun lalu (prior year)</p><div class="chart-box chart-box--sm"><canvas id="cTrend"></canvas></div></div>
       <div class="card card--wide"><h3>Achievement per Segmen</h3><p class="csub">% pencapaian target tiap segmen pelanggan</p><div class="chart-box chart-box--sm"><canvas id="cSegmen"></canvas></div></div>
+    </div>
+
+    <div class="card card--wide trendcard">
+      <div class="trend-head">
+        <div>
+          <h3>Tren Realisasi per Kategori Produk</h3>
+          <p class="csub">Realisasi bulanan tiap kategori — tahun berjalan vs tahun lalu (prior year)</p>
+        </div>
+        <div class="trend-controls">
+          <div class="seg" id="trendView">
+            <button data-view="monthly" class="on">Bulanan</button>
+            <button data-view="ytd">YTD Kumulatif</button>
+          </div>
+          <select id="fTrendProduct" aria-label="Filter produk"></select>
+        </div>
+      </div>
+      <div class="trend-grid" id="trendGrid"></div>
     </div>
 
     <div class="card tablecard">
@@ -184,7 +213,7 @@
     }
 
     /* ---------- CHARTS ---------- */
-    let chArea, chCat, chTrend, chSegmen;
+    let chArea, chCat, chSegmen;
     function renderCharts(){
       const d = filtered();
       const aLabels = AREAS.filter(a=>d.some(r=>r.area===a));
@@ -195,7 +224,6 @@
       const cReal = cLabels.map(c=>d.filter(r=>r.category===c).reduce((s,r)=>s+r.real,0));
 
       const sAch = SEGMEN.map(sg=>{const rows=d.filter(r=>r.segmen===sg);const t=rows.reduce((s,r)=>s+r.target,0);const r2=rows.reduce((s,r)=>s+r.real,0);return t?+(r2/t*100).toFixed(1):0;});
-      const share = d.reduce((s,r)=>s+r.real,0) / RECORDS.reduce((s,r)=>s+r.real,0) || 1;
       const base = {responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{usePointStyle:true,boxWidth:8}}}};
 
       if(chArea) chArea.destroy();
@@ -208,12 +236,6 @@
       chCat = new Chart(document.getElementById("cCategory"),{type:"doughnut",data:{labels:cLabels,datasets:[
         {data:cReal,backgroundColor:[CLR.teal,CLR.violet,CLR.amber,CLR.sky],borderWidth:0}]},
         options:{...base,cutout:"62%"}});
-
-      if(chTrend) chTrend.destroy();
-      chTrend = new Chart(document.getElementById("cTrend"),{type:"line",data:{labels:MONTHS,datasets:[
-        {label:"Tahun Berjalan",data:MONTHLY_CUR.map(v=>Math.round(v*share)),borderColor:CLR.teal,backgroundColor:CLR.teal+"22",fill:true,tension:.35,pointRadius:2},
-        {label:"Tahun Lalu",data:MONTHLY_PY.map(v=>Math.round(v*share)),borderColor:CLR.violet,borderDash:[5,4],tension:.35,pointRadius:0}]},
-        options:{...base,scales:{y:{beginAtZero:true}}}});
 
       if(chSegmen) chSegmen.destroy();
       chSegmen = new Chart(document.getElementById("cSegmen"),{type:"bar",data:{labels:SEGMEN,datasets:[
@@ -234,7 +256,62 @@
       }).join("");
     }
 
-    function refresh(){ renderKpis(); renderCharts(); renderTable(); }
+    /* ---------- TREND per kategori (view Bulanan/YTD + filter produk) ---------- */
+    const CUR_SUM = MONTHLY_CUR.reduce((a,b)=>a+b,0);
+    const CUR_SHAPE = MONTHLY_CUR.map(v=>v/CUR_SUM);   // pola musiman tahun berjalan (jumlah=1)
+    const PY_SHAPE  = MONTHLY_PY.map(v=>v/CUR_SUM);     // tahun lalu (jumlah ~0.9 → lebih rendah)
+    let trendView = "monthly";
+    let trendCharts = [];
+    const fTrendProduct = document.getElementById("fTrendProduct");
+    fTrendProduct.innerHTML = `<option value="all">Semua Produk</option>` + PRODUCTS.map(p=>`<option>${p.name}</option>`).join("");
+
+    function seriesFor(recs){
+      const total = recs.reduce((s,r)=>s+r.real,0);
+      let cur = CUR_SHAPE.map(f=>Math.round(total*f));
+      let py  = PY_SHAPE.map(f=>Math.round(total*f));
+      if(trendView==="ytd"){
+        const cum = a => a.map((_,i)=>a.slice(0,i+1).reduce((s,v)=>s+v,0));
+        cur = cum(cur); py = cum(py);
+      }
+      return {cur,py};
+    }
+
+    function renderTrend(){
+      trendCharts.forEach(c=>c.destroy()); trendCharts = [];
+      const area = fArea.value, prod = fTrendProduct.value;
+      let groups;
+      if(prod==="all"){
+        groups = CATEGORIES.map(cat=>({title:cat, filter:r=>r.category===cat}));
+      } else {
+        const p = PRODUCTS.find(x=>x.name===prod);
+        groups = [{title:prod, subtitle:p?p.cat:"", filter:r=>r.product===prod}];
+      }
+      const grid = document.getElementById("trendGrid");
+      grid.style.gridTemplateColumns = groups.length===1 ? "1fr" : "";
+      grid.innerHTML = groups.map((g,i)=>`
+        <div class="tcard">
+          <h4>${g.title}${g.subtitle?`<span class="tcat">${g.subtitle}</span>`:""}</h4>
+          <div class="chart-box chart-box--sm"><canvas id="trend${i}"></canvas></div>
+        </div>`).join("");
+      const suffix = trendView==="ytd" ? " (kumulatif)" : "";
+      const base = {responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{usePointStyle:true,boxWidth:8}}}};
+      groups.forEach((g,i)=>{
+        const recs = RECORDS.filter(r => (area==="all"||r.area===area) && g.filter(r));
+        const {cur,py} = seriesFor(recs);
+        trendCharts.push(new Chart(document.getElementById("trend"+i),{type:"line",data:{labels:MONTHS,datasets:[
+          {label:"Tahun Berjalan"+suffix,data:cur,borderColor:CLR.teal,backgroundColor:CLR.teal+"22",fill:true,tension:.35,pointRadius:2},
+          {label:"Tahun Lalu"+suffix,data:py,borderColor:CLR.violet,borderDash:[5,4],tension:.35,pointRadius:0}]},
+          options:{...base,scales:{y:{beginAtZero:true}}}}));
+      });
+    }
+
+    document.querySelectorAll("#trendView button").forEach(b=>b.addEventListener("click",()=>{
+      document.querySelectorAll("#trendView button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); trendView = b.dataset.view; renderTrend();
+    }));
+    fTrendProduct.addEventListener("change", renderTrend);
+
+    function refresh(){ renderKpis(); renderCharts(); renderTable(); renderTrend(); }
     fArea.addEventListener("change",refresh);
     fCategory.addEventListener("change",refresh);
     refresh();
