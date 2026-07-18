@@ -239,7 +239,7 @@
 
       if(chSegmen) chSegmen.destroy();
       chSegmen = new Chart(document.getElementById("cSegmen"),{type:"bar",data:{labels:SEGMEN,datasets:[
-        {label:"Achievement (%)",data:sAch,backgroundColor:sAch.map(v=>v>=100?CLR.teal:v>=90?CLR.amber:CLR.red),borderRadius:6}]},
+        {label:"Achievement (%)",data:sAch,backgroundColor:sAch.map(v=>v>=100?CLR.teal:CLR.red),borderRadius:6}]},
         options:{...base,indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,suggestedMax:120,ticks:{callback:v=>v+"%"}}}}});
     }
 
@@ -263,7 +263,7 @@
     let trendView = "monthly";
     let chTrend;
     // 4 warna yang jelas berbeda (hijau, biru, oranye, magenta) agar tidak tertukar
-    const CAT_COLOR = {"Fixed Broadband":"#2dd4bf","Internet":"#3b82f6","Data":"#f59e0b","Media":"#ec4899"};
+    const CAT_COLOR = {"Fixed Broadband":"#8b5cf6","Internet":"#3b82f6","Data":"#f59e0b","Media":"#ec4899"};
     const fTrendProduct = document.getElementById("fTrendProduct");
     fTrendProduct.innerHTML = `<option value="all">Semua Produk</option>` + PRODUCTS.map(p=>`<option>${p.name}</option>`).join("");
 
