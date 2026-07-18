@@ -21,14 +21,14 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #f6f8fb;
-  --bg-alt: #eef2f7;
+  --bg: #ffffff;
+  --bg-alt: #f4f7fb;
   --surface: #ffffff;
-  --surface-2: #f2f5f9;
-  --border: #dde4ec;
+  --surface-2: #f4f7fb;
+  --border: #e3e8ef;
   --text: #131a24;
   --text-dim: #5b6675;
-  --shadow: 0 20px 50px -24px rgba(20, 40, 80, 0.25);
+  --shadow: 0 16px 40px -24px rgba(20, 40, 80, 0.22);
 }
 
 /* ---- Reset & base ---- */

@@ -121,7 +121,11 @@ navLinks.querySelectorAll("a").forEach((a) =>
 /* ---------- Theme toggle ---------- */
 const themeToggle = document.getElementById("themeToggle");
 const saved = localStorage.getItem("theme");
-if (saved === "light") {
+// Default is light (white). Only go dark if the user explicitly chose it.
+if (saved === "dark") {
+  document.documentElement.removeAttribute("data-theme");
+  themeToggle.textContent = "🌙";
+} else {
   document.documentElement.setAttribute("data-theme", "light");
   themeToggle.textContent = "☀️";
 }
